@@ -1,0 +1,7 @@
+#!/bin/sh
+
+terraform apply \
+-var-file=../.auto.tfvars \
+-var-file=../.secrets.tfvars \
+-auto-approve
+

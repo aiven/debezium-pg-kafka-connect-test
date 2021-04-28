@@ -1,0 +1,6 @@
+#!/bin/sh
+
+terraform plan \
+-var-file=../.auto.tfvars \
+-var-file=../.secrets.tfvars
+
