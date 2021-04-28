@@ -52,3 +52,4 @@ Deploys and configures a __test/validation__ environment for the Debezium (Postg
 - add testing validation data and process
 - automate triggering maintenance and or fail-over events
 - add bug/issue validation process
+- add a top-level `DESTROY` ENV wrapper script
