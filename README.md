@@ -1,4 +1,4 @@
-# Automated Debezium Kafka PostgreSQL ENV Deployment
+# Automated Debezium Kafka PostgreSQL Test ENV Deployment
 
 #### OVERVIEW
 Deploys and configures a __test/validation__ environment for the Debezium (PostgreSQL) connector with Kafka service integration
@@ -53,3 +53,6 @@ Deploys and configures a __test/validation__ environment for the Debezium (Postg
 - automate triggering maintenance and or fail-over events
 - add bug/issue validation process
 - add a top-level `DESTROY` ENV wrapper script
+- investigate integrating tools in other OS projects like:
+  - [debezium-examples:using-postgres](https://github.com/debezium/debezium-examples/tree/master/tutorial#using-postgres)
+  - [postgres-kafka-demo](https://github.com/mtpatter/postgres-kafka-demo)
