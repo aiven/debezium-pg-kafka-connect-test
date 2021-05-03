@@ -47,3 +47,12 @@ resource "aiven_service_integration" "i1" {
     }
   }
 }
+
+# create Kafka topic
+resource "aiven_kafka_topic" "demo-topic" {
+  project = var.avn_kafka_svc_project_id
+  service_name = var.avn_kafka_svc_name
+  topic_name = "demo-topic"
+  partitions = 3
+  replication = 2
+}

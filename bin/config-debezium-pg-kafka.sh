@@ -34,9 +34,8 @@ echo avn_pg_svc_name: $avn_pg_svc_name
 echo avn_pg_svc_fq_name: $avn_pg_svc_fq_name
 echo "#############################################"
 
-# TODO: if we need to get the cert to later exec kafka commands?  
-# we get service cert user and passwords then we must delete the certs upon scripts completion
-#avn service user-creds-download --project $avn_pg_svc_project_id --username avnadmin -d ./service-creds $avn_kafka_svc_name
+# required if we need to get the cert to later exec kafka commands
+avn service user-creds-download --project $avn_pg_svc_project_id --username avnadmin -d ./service-creds $avn_kafka_svc_name
 
 ## Get passwords for each requisite svc
 

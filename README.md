@@ -4,6 +4,7 @@
 Deploys and configures a __test/validation__ environment for the Debezium (PostgreSQL) connector with Kafka service integration
 - I.e.: this project deploys and configures:
   - Kafka service 
+    - with a test topic: `demo-topic`
   - Kafka Connector service
   - PostgreSQL service
 

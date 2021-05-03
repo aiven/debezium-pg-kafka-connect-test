@@ -1,16 +1,21 @@
-ca.pem
-service.cert
-service.key
-.secrets.tfvars
+*.pem
+service.*
+service.*
+*.p12
+*.jks
 
 # Local terraform directories
 .terraform
+.secrets.tfvars
 *.plan
 **/.terraform/plugins
 **/.terraform/modules
 
 terraform.tfstate
 .terraform.lock.hcl
+terraform.*
+
+kafka-config/*
 
 # IntelliJ IDEA
 .idea/*
