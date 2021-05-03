@@ -48,12 +48,22 @@ Deploys and configures a __test/validation__ environment for the Debezium (Postg
 ```console
 ./bin/deploy-terraform-infra.sh
 ```
+#### Kafka Tools 
+##### Conduktor Configuration
+- We will use [conduktor](https://www.conduktor.io/download/) to create the requisite PKS12 cert keystore and generate random data to the `demo-topic` kafka topic that our terraform created--(see the kafka_connect module).
+  - Follow the below steps after running the `deploy-terraform-infra.sh` script.
+  - [Download and install the conduktor kafka tool](https://www.conduktor.io/download/)
+  - Follow the [Conduktor Cluster Connection docs](https://docs.conduktor.io/kafka-cluster-connection/setting-up-a-connection-to-kafka); it's as simple as pointing the conduktor application to the:
+    - `ca.pem`
+    - `service.cert`
+    - `service.key`
+  files in the: `./kafka-config/project-certs` directory.
+- Producer: configure the topic for `demo-topic` set `Flow` `Automatic` and select data type, then `Start Producing`.
+- Select `Consumer` and topic: `demo-topic` and `Start`.
+- We are now producing to and consuming from our `demo-topic`.
+
 
 ##### TODO
-- add testing validation data and process
-- automate triggering maintenance and or fail-over events
+- document triggering maintenance and or fail-over events with scaling up/down
 - add bug/issue validation process
 - add a top-level `DESTROY` ENV wrapper script
-- investigate integrating tools in other OS projects like:
-  - [debezium-examples:using-postgres](https://github.com/debezium/debezium-examples/tree/master/tutorial#using-postgres)
-  - [postgres-kafka-demo](https://github.com/mtpatter/postgres-kafka-demo)
