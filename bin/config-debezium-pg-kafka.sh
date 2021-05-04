@@ -94,11 +94,13 @@ curl -H "Content-type:application/json" -X POST https://avnadmin:$avn_kafka_conn
 
 echo
 echo
+echo "Monitoring our PostgreSQL Replication Slots:"
+echo
 echo "Show PG replication slots and their status--we should see 't' (true) under the 'active' column for each slot"
 PGPASSWORD=$avn_pg_svc_password psql -h $avn_pg_svc_fq_name -U avnadmin -d defaultdb -p 24947 -c "select * from pg_replication_slots"
 echo
 
-echo "Show how much lag we have behind the slots:"
+echo "Show/monitor how much lag we have behind the slots:"
 PGPASSWORD=$avn_pg_svc_password psql -h $avn_pg_svc_fq_name -U avnadmin -d defaultdb -p 24947 -c "SELECT redo_lsn, slot_name,restart_lsn, 
 round((redo_lsn-restart_lsn) / 1024 / 1024 / 1024, 2) AS GB_behind 
 FROM pg_control_checkpoint(), pg_replication_slots;"

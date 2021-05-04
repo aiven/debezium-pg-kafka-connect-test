@@ -65,8 +65,21 @@ Deploys and configures a __test/validation__ environment for the Debezium (Postg
 - Select `Consumer` and topic: `demo-topic` and `Start`. 
 - We should now see that we are both producing to and consuming from our kafka `demo-topic`.
 
+#### Monitoring our PostgreSQL Replication Slots
+- Note these commands are run in the `config-debezium-pg-kafka.sh` script that is called by the `deploy-terraform-infra.sh` script.
+
+- Show the PG replication slots and their status--we should see 't' (true) under the 'active' column for each slot.
+  ```console
+  SELECT * from pg_replication_slots;
+  ```
+
+- Show/monitor how much lag we have behind the slots:
+  ```console
+  SELECT redo_lsn, slot_name,restart_lsn, 
+  round((redo_lsn-restart_lsn) / 1024 / 1024 / 1024, 2) AS GB_behind 
+  FROM pg_control_checkpoint(), pg_replication_slots;
+  ```
 
 ##### TODO
 - document triggering maintenance and or fail-over events with scaling up/down
-- add bug/issue validation process
 - add a top-level `DESTROY` ENV wrapper script
