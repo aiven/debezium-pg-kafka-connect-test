@@ -74,6 +74,7 @@ echo "Now setting up the Debezium Connector"
 echo "Calling into the Kafka service's Kafka Connect REST API..."
 echo -n "Note: if the Debezium connection has already been configured you may see a '409 kafka-connector already exists' error. "
 echo "Disregard these errors and proceed"
+echo
 
 curl -H "Content-type:application/json" -X POST https://avnadmin:$avn_kafka_connector_svc_password@$avn_kafka_connector_svc_fq_name:443/connectors -d '{
 "name": "'"$avn_kafka_connector_svc_name"'",
@@ -91,4 +92,14 @@ curl -H "Content-type:application/json" -X POST https://avnadmin:$avn_kafka_conn
   }
 }'
 
+echo
+echo
+echo "Show PG replication slots and their status--we should see 't' (true) under the 'active' column for each slot"
+PGPASSWORD=$avn_pg_svc_password psql -h $avn_pg_svc_fq_name -U avnadmin -d defaultdb -p 24947 -c "select * from pg_replication_slots"
+echo
+
+echo "Show how much lag we have behind the slots:"
+PGPASSWORD=$avn_pg_svc_password psql -h $avn_pg_svc_fq_name -U avnadmin -d defaultdb -p 24947 -c "SELECT redo_lsn, slot_name,restart_lsn, 
+round((redo_lsn-restart_lsn) / 1024 / 1024 / 1024, 2) AS GB_behind 
+FROM pg_control_checkpoint(), pg_replication_slots;"
 echo
