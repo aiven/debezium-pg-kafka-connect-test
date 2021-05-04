@@ -80,6 +80,28 @@ Deploys and configures a __test/validation__ environment for the Debezium (Postg
   FROM pg_control_checkpoint(), pg_replication_slots;
   ```
 
+
+#### Known Issues
+- Started hitting issue with `resource "aiven_kafka_topic" "demo-topic"`
+- Looks like some sort of timeout issue? `context deadline exceeded`
+
+```console
+aiven_kafka_topic.demo-topic: Still creating... [40s elapsed]
+aiven_kafka_topic.demo-topic: Still creating... [50s elapsed]
+
+Error: error waiting for Aiven Kafka topic to be ACTIVE: context deadline exceeded
+
+  on services.tf line 52, in resource "aiven_kafka_topic" "demo-topic":
+  52: resource "aiven_kafka_topic" "demo-topic" {
+```
+- Tried upgrading the avien TF provider to latest version and adding the depends on the `aiven_kafka.kafka-service` 
+- Note that immediately re-executing the top-level `./bin/deploy-terraform-infra.sh` script it deploys/creates the topic without issue.
+```console
+aiven_kafka_topic.demo-topic is tainted, so must be replaced
+...
+Apply complete! Resources: 1 added, 0 changed, 1 destroyed.
+```
+
 ##### TODO
+- Resolve any remaining Known Issues in above section.
 - document triggering maintenance and or fail-over events with scaling up/down
-- add a top-level `DESTROY` ENV wrapper script

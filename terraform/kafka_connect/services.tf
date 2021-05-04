@@ -55,4 +55,19 @@ resource "aiven_kafka_topic" "demo-topic" {
   topic_name = "demo-topic"
   partitions = 3
   replication = 2
+  termination_protection = false
+
+  config {
+      flush_ms = 10
+      unclean_leader_election_enable = true
+      cleanup_policy = "compact,delete"
+  }
+
+  timeouts {
+      create = "1m"
+      read = "5m"
+  }
+
+  depends_on = [ aiven_kafka.kafka-service ]
+
 }
