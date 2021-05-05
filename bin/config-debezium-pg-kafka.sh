@@ -46,7 +46,7 @@ avn_kafka_svc_password="$(avn service user-list --format '{username} {password}'
 avn_kafka_connector_svc_password="$(avn service user-list --format '{username} {password}' --project $avn_pg_svc_project_id $avn_kafka_connector_svc_name | awk '{print $2}')"
 
 # postgres
-avn_pg_svc_password="$(avn service user-list --format '{username} {password}' --project $avn_pg_svc_project_id $avn_pg_svc_name | grep 'avnadmin' | awk '{print $2}'
+avn_pg_svc_password="$(avn service user-list --format '{username} {password}' --project $avn_pg_svc_project_id $avn_pg_svc_name | grep 'avnadmin' | awk '{print $2}')"
 
 echo
 echo "Uncomment the below lines to show the sensitive passwords"
