@@ -91,6 +91,18 @@ curl -H "Content-type:application/json" -X POST https://avnadmin:$avn_kafka_conn
    "database.sslmode": "require"
   }
 }'
+   #"table.whitelist": "employees.source_table",
+#   "table.include.list": "public.source_table",
+
+echo "Configure defaultdb database and data with sample data/schema"
+echo ""
+cd pg-test
+if ls employees_data.sql.gz &>/dev/null; then
+    gunzip employees_data.sql.gz 
+fi
+#psql -U employees_user defaultdb < employees_data.sql
+PGPASSWORD=$avn_pg_svc_password psql -h $avn_pg_svc_fq_name -U avnadmin -d defaultdb -p 24947 < employees_data.sql
+cd ../
 
 echo
 echo
