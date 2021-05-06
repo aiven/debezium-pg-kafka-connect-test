@@ -17,7 +17,7 @@ SET row_security = off;
 -- Name: employees; Type: SCHEMA; Schema: -; Owner: -
 --
 
-CREATE SCHEMA employees;
+CREATE SCHEMA IF NOT EXISTS employees;
 
 
 SET search_path = employees, pg_catalog;
@@ -40,7 +40,7 @@ SET default_with_oids = false;
 -- Name: department; Type: TABLE; Schema: employees; Owner: -
 --
 
-CREATE TABLE department (
+CREATE TABLE IF NOT EXISTS department (
     id character(4) NOT NULL,
     dept_name character varying(40) NOT NULL
 );
@@ -50,7 +50,7 @@ CREATE TABLE department (
 -- Name: department_employee; Type: TABLE; Schema: employees; Owner: -
 --
 
-CREATE TABLE department_employee (
+CREATE TABLE IF NOT EXISTS department_employee (
     employee_id bigint NOT NULL,
     department_id character(4) NOT NULL,
     from_date date NOT NULL,
@@ -62,7 +62,7 @@ CREATE TABLE department_employee (
 -- Name: department_manager; Type: TABLE; Schema: employees; Owner: -
 --
 
-CREATE TABLE department_manager (
+CREATE TABLE IF NOT EXISTS department_manager (
     employee_id bigint NOT NULL,
     department_id character(4) NOT NULL,
     from_date date NOT NULL,
@@ -74,7 +74,7 @@ CREATE TABLE department_manager (
 -- Name: employee; Type: TABLE; Schema: employees; Owner: -
 --
 
-CREATE TABLE employee (
+CREATE TABLE IF NOT EXISTS employee (
     id bigint NOT NULL,
     birth_date date NOT NULL,
     first_name character varying(14) NOT NULL,
@@ -107,7 +107,7 @@ ALTER SEQUENCE id_employee_seq OWNED BY employee.id;
 -- Name: salary; Type: TABLE; Schema: employees; Owner: -
 --
 
-CREATE TABLE salary (
+CREATE TABLE IF NOT EXISTS salary (
     employee_id bigint NOT NULL,
     amount bigint NOT NULL,
     from_date date NOT NULL,
@@ -119,7 +119,7 @@ CREATE TABLE salary (
 -- Name: title; Type: TABLE; Schema: employees; Owner: -
 --
 
-CREATE TABLE title (
+CREATE TABLE IF NOT EXISTS title (
     employee_id bigint NOT NULL,
     title character varying(50) NOT NULL,
     from_date date NOT NULL,
@@ -193,14 +193,14 @@ CREATE UNIQUE INDEX idx_16979_dept_name ON department USING btree (dept_name);
 -- Name: idx_16982_dept_no; Type: INDEX; Schema: employees; Owner: -
 --
 
-CREATE INDEX idx_16982_dept_no ON department_employee USING btree (department_id);
+CREATE INDEX IF NOT EXISTS idx_16982_dept_no ON department_employee USING btree (department_id);
 
 
 --
 -- Name: idx_16985_dept_no; Type: INDEX; Schema: employees; Owner: -
 --
 
-CREATE INDEX idx_16985_dept_no ON department_manager USING btree (department_id);
+CREATE INDEX IF NOT EXISTS idx_16985_dept_no ON department_manager USING btree (department_id);
 
 
 --
