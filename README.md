@@ -81,9 +81,9 @@ Deploys and configures a __test/validation__ environment for the Debezium (Postg
   ```
 
 
-#### Known Issues
-- Started hitting issue with `resource "aiven_kafka_topic" "demo-topic"`
-- Looks like some sort of timeout issue? `context deadline exceeded`
+#### Possible Intermittent Known Issues
+- Saw this a couple of times where TF errors-out with creating `resource "aiven_kafka_topic" "demo-topic"`
+- Looked like timeout issue? `context deadline exceeded`
 
 ```console
 aiven_kafka_topic.demo-topic: Still creating... [40s elapsed]
@@ -94,8 +94,7 @@ Error: error waiting for Aiven Kafka topic to be ACTIVE: context deadline exceed
   on services.tf line 52, in resource "aiven_kafka_topic" "demo-topic":
   52: resource "aiven_kafka_topic" "demo-topic" {
 ```
-- Tried upgrading the avien TF provider to latest version and adding the depends on the `aiven_kafka.kafka-service` 
-- Note that immediately re-executing the top-level `./bin/deploy-terraform-infra.sh` script it deploys/creates the topic without issue.
+- Note that immediately re-executing the top-level `./bin/deploy-terraform-infra.sh` script it deployed/created the topic without issue.
 ```console
 aiven_kafka_topic.demo-topic is tainted, so must be replaced
 ...
@@ -103,5 +102,5 @@ Apply complete! Resources: 1 added, 0 changed, 1 destroyed.
 ```
 
 ##### TODO
-- Resolve any remaining Known Issues in above section.
-- document triggering maintenance and or fail-over events with scaling up/down
+- continue with pg data scripts and validate data flow through kafka via debezium.
+- document and automate the triggering of maintenance and or fail-over events with scaling up/down
