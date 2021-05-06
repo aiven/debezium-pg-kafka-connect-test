@@ -7,6 +7,7 @@ avn_pg_svc_name = "cmcc-pg-debezium-test-gcp"
 #avn_pg_svc_type = "pg"
 avn_pg_svc_window_dow = "friday"
 avn_pg_svc_window_time = "12:00:00"
+avn_pg_svc_version = "11"
 
 # Kafka
 avn_kafka_svc_version = "2.6" # TODO: validate their version!!

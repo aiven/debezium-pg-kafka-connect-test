@@ -13,7 +13,7 @@ resource "aiven_service" "avn-us-pg" {
     pg {
         idle_in_transaction_session_timeout = 900
     }
-    pg_version = "10"
+    pg_version = var.avn_pg_svc_version
   }
 }
 

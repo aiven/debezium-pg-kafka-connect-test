@@ -7,6 +7,7 @@ variable "avn_pg_svc_project_id" {}
 variable "avn_pg_svc_cloud" {}
 variable "avn_pg_svc_plan" {}
 variable "avn_pg_svc_name" {}
+variable "avn_pg_svc_version" {}
 
 variable "avn_pg_svc_window_dow" {}
 variable "avn_pg_svc_window_time" {}
