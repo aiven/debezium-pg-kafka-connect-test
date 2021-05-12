@@ -74,9 +74,9 @@ echo ""
 cd pg-test
 if ls employees_data.sql.gz &>/dev/null; then
     gunzip employees_data.sql.gz 
-    # https://stackoverflow.com/questions/36634360/how-to-ignore-errors-with-psql-copy-meta-command # would be nice
-    PGPASSWORD=$avn_pg_svc_password psql -h $avn_pg_svc_fq_name -U avnadmin -d defaultdb -p 24947 < employees_data.sql
-    gzip employees_data.sql&
+    PGPASSWORD=$avn_pg_svc_password psql -h $avn_pg_svc_fq_name -U avnadmin -d defaultdb -p 24947 -c "DROP SCHEMA IF EXISTS employees CASCADE;"
+    PGPASSWORD=$avn_pg_svc_password pg_restore -h $avn_pg_svc_fq_name -U avnadmin -d defaultdb -p 24947 -d "defaultdb" "employees_data.sql"
+    gzip employees_data.sql &
     cd ../
 fi
 
