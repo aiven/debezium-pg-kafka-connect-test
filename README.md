@@ -3,7 +3,7 @@
 #### OVERVIEW
 Deploys and configures a __test/validation__ environment for the Debezium (PostgreSQL) connector with Kafka service integration
 - I.e.: this project deploys and configures:
-  - Kafka service 
+  - Kafka service
     - with a test topic: `demo-topic`
   - Kafka Connector service
   - PostgreSQL service
@@ -13,7 +13,7 @@ Deploys and configures a __test/validation__ environment for the Debezium (Postg
 - This project's Terraform does not leverage remote encrypted locking statefiles, etc.
 
 
-###### For more information please see: 
+###### For more information please see:
 - [Aiven Help Docs: setting-up-debezium-with-aiven-for-postgresql](https://help.aiven.io/en/articles/1790791-setting-up-debezium-with-aiven-for-postgresql)
 
 #### REQUIREMENTS
@@ -23,7 +23,7 @@ Deploys and configures a __test/validation__ environment for the Debezium (Postg
 
   - So, your Aiven Cli config files should look like:
     ```console
-    cat ~/.config/aiven/aiven-client.json 
+    cat ~/.config/aiven/aiven-client.json
     {
         "default_project": "test-debezium"
     }
@@ -48,7 +48,7 @@ Deploys and configures a __test/validation__ environment for the Debezium (Postg
 ```console
 ./bin/deploy-terraform-infra.sh
 ```
-#### Kafka Tools 
+#### Kafka Tools
 - Producing to and consuming from our kafka `demo-topic`.
 - We procide an example below using the Conduktor application/tool.  It is not required, but recommended.  Feel free to use the tools and methods of your choice.
 ##### Conduktor Configuration
@@ -62,7 +62,7 @@ Deploys and configures a __test/validation__ environment for the Debezium (Postg
   files in the: `./kafka-config/project-certs` directory.
   - Conduktor will create the PKCS12 keystore.
 - Producer: configure the topic for `demo-topic` set `Flow` `Automatic` and select data type, then `Start Producing`.
-- Select `Consumer` and topic: `demo-topic` and `Start`. 
+- Select `Consumer` and topic: `demo-topic` and `Start`.
 - We should now see that we are both producing to and consuming from our kafka `demo-topic`.
 
 #### Monitoring our PostgreSQL Replication Slots
@@ -75,11 +75,77 @@ Deploys and configures a __test/validation__ environment for the Debezium (Postg
 
 - Show/monitor how much lag we have behind the slots:
   ```console
-  SELECT redo_lsn, slot_name,restart_lsn, 
-  round((redo_lsn-restart_lsn) / 1024 / 1024 / 1024, 2) AS GB_behind 
+  SELECT redo_lsn, slot_name,restart_lsn,
+  round((redo_lsn-restart_lsn) / 1024 / 1024 / 1024, 2) AS GB_behind
   FROM pg_control_checkpoint(), pg_replication_slots;
   ```
 
+- There is also a python script that monitors the lag and warns if the slot becomes inactive:
+  ```console
+  python bin/python_scripts/replication_slot_monitor.py --verbose --sleep 10
+  ```
+
+In the event of a database failover, the script will retry the connection:
+
+```
+ERROR replication_slot_monitor: Failed connecting to the PG server. Retrying after 5 seconds...
+```
+
+#### Verify that the Debezium connector is capturing change
+
+There is a helper python script that generates data to a test Postgresql table and verify that the changes are captured by Debezium. Verification is done simply by consuming from the Kafka topic to which the connector writes the CDC events and checking if these records matches the ids of the records that were inserted into the source database table. For now the test database table is called `test` and it is hardcoded in `bin/config-debezium-pg-kafka.sh` and `bin/python_scripts/debezium_pg_producer.py`.
+
+Consuming from the Kafka topic and inserting data into the test table are done in separate Python threads.
+
+```console
+python bin/python_scripts/debezium_pg_producer.py --verbose --sleep 3
+```
+
+The script accepts some arguments:
+
+```console
+--table TABLE           The table into which we write test data. Default is "test" table.
+--sleep SLEEP           Delay between inserts. Default 1 second. Used to control data flow
+--iterations ITERATIONS How many inserts before closing program. Defaults to 10000 inserts.
+--verbose               Sets the log level to DEBUG. Default log level is WARN
+```
+
+When a database failover event happens and the script cannot connect to the database to insert data, you will see  this log entry:
+
+```
+ERROR debezium_pg_producer: Postgres data insert: Failed connecting to the PG server. Retrying after 5 seconds...
+```
+
+After 10-15 seconds the insert thread should resume. The Kafka consumer thread however might fail to get new records (will show `INFO debezium_pg_producer: Kafka Consumer exited`) when the Debezium connector fails to resume.
+
+During testing I have noticed that the replication slot can be inactive for 15-20 minutes: this means that the connector isn't capturing any changes. What is interesting however is that the connector appears to run fine. It only fails at the time when the failover happened, with a failing error message like this:
+
+```
+ERROR Producer failure
+org.postgresql.util.PSQLException: Database connection failed when writing to copy
+
+or
+
+ERROR Could not execute heartbeat action
+```
+
+After that the connector's status shows as running, and no more error messages are outputted. But the replication slot to which it consumes is still inactive :-?
+
+I couldn't find a sure way to reproduce this consistently, seems to happen now and again during a failover.
+
+#### Changing the Debezium connector log level
+
+- To get a more detailed log output, we can change the logging level of the running Debezium connector to TRACE level using this command:
+
+  ```console
+  ./bin/set_debezium_connector_logging_level.sh io.debezium.connector.postgresql trace
+  ```
+
+- To get the current logging levels of all loggers in our Kafka Connect cluster, just run the above script again with no arguments:
+
+  ```console
+  ./bin/set_debezium_connector_logging_level.sh
+  ```
 
 #### Possible Intermittent Known Issues
 - Saw this a couple of times where TF errors-out with creating `resource "aiven_kafka_topic" "demo-topic"`
@@ -104,3 +170,4 @@ Apply complete! Resources: 1 added, 0 changed, 1 destroyed.
 ##### TODO
 - continue with pg data scripts and validate data flow through kafka via debezium.
 - document and automate the triggering of maintenance and or fail-over events with scaling up/down
+- use env variables to specify region and project name for use in config-debezium-pg-kafka (right now hardcoded in .auto.tfvars)
