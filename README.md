@@ -118,6 +118,18 @@ ERROR debezium_pg_producer: Postgres data insert: Failed connecting to the PG se
 
 After 10-15 seconds the insert thread should resume. The Kafka consumer thread however might fail to get new records (will show `INFO debezium_pg_producer: Kafka Consumer exited`) when the Debezium connector fails to resume.
 
+To end the script, press Ctrl + C once: you will then get a log message if Debezium has successfully captured all the changes since the script started, or did it miss some records:
+
+```
+Kafka Consumer: Some inserts were not captured by debezium
+
+or
+
+Kafka Consumer: All inserts were captured by debezium
+```
+
+---
+
 During testing I have noticed that the replication slot can be inactive for 15-20 minutes: this means that the connector isn't capturing any changes. What is interesting however is that the connector appears to run fine. It only fails at the time when the failover happened, with a failing error message like this:
 
 ```
