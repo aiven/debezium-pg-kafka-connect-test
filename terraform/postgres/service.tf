@@ -1,5 +1,5 @@
 
-# Postgres 
+# Postgres
 resource "aiven_service" "avn-us-pg" {
   project      = var.avn_pg_svc_project_id
   cloud_name   = var.avn_pg_svc_cloud
@@ -10,9 +10,6 @@ resource "aiven_service" "avn-us-pg" {
   maintenance_window_time = var.avn_pg_svc_window_time
 
   pg_user_config {
-    pg {
-        idle_in_transaction_session_timeout = 900
-    }
     pg_version = var.avn_pg_svc_version
   }
 }

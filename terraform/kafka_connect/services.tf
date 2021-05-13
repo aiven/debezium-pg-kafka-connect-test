@@ -18,7 +18,7 @@ resource "aiven_kafka" "kafka-service" {
 resource "aiven_kafka_connect" "kafka_connect" {
   project = var.avn_kafka_svc_project_id
   cloud_name = var.avn_kafka_svc_cloud
-  plan = var.avn_kafka_svc_plan
+  plan = var.avn_kafka_connect_svc_plan
   service_name = var.avn_kafka_connector_svc_name
 
   kafka_connect_user_config {
