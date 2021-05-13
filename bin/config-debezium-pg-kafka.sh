@@ -80,61 +80,15 @@ echo "Install the aiven-extras extension and create a publication for all tables
 # Install the aiven-extras extension:
 PGPASSWORD=$avn_pg_svc_password psql -h $avn_pg_svc_fq_name -U avnadmin -d defaultdb -p $avn_pg_svc_port -c "CREATE EXTENSION aiven_extras CASCADE; SELECT * FROM aiven_extras.pg_create_publication_for_all_tables('dbz_publication', 'INSERT,UPDATE,DELETE');"
 
-echo "Configure defaultdb database and data with sample data/schema"
-echo ""
-cd pg-test
-if ls employees_data.sql.gz &>/dev/null; then
-    gunzip employees_data.sql.gz
-    # https://stackoverflow.com/questions/36634360/how-to-ignore-errors-with-psql-copy-meta-command # would be nice
-    PGPASSWORD=$avn_pg_svc_password psql -h $avn_pg_svc_fq_name -U avnadmin -d defaultdb -p 24947 < employees_data.sql
-    gzip employees_data.sql&
-    cd ../
-fi
-
 echo "Create a heartbeat table in order to use the heartbeat.action.query config which is what the customer was using. Heartbeats are needed to control the WAL disk space consumption. This Debezium blog post has more detailed information: https://debezium.io/blog/2020/02/25/lessons-learned-running-debezium-with-postgresql-on-rds/"
 echo ""
 PGPASSWORD=$avn_pg_svc_password psql -h $avn_pg_svc_fq_name -U avnadmin -d defaultdb -p $avn_pg_svc_port -c "CREATE TABLE IF NOT EXISTS public.heartbeat (id SERIAL PRIMARY KEY, updated_at timestamp without time zone DEFAULT now());"
 
-echo "Now setting up the Debezium Connector"
+echo "Now setting up the Debezium Connector with 'heartbeats'"
 echo "Calling into the Kafka service's Kafka Connect REST API..."
 echo -n "Note: if the Debezium connection has already been configured you may see a '409 kafka-connector already exists' error. "
 echo "Disregard these errors and proceed"
 echo
-
-# if using defaultdb and public schema
-#curl -H "Content-type:application/json" -X POST https://avnadmin:$avn_kafka_connector_svc_password@$avn_kafka_connector_svc_fq_name:443/connectors -d '{
-#"name": "'"$avn_kafka_connector_svc_name"'",
-#"config": {
-#   "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
-#   "database.hostname": "'"$avn_pg_svc_fq_name"'",
-#   "database.port": "$avn_pg_svc_port",
-#   "database.user": "avnadmin",
-#   "database.password": "'"$avn_pg_svc_password"'",
-#   "database.dbname": "defaultdb",
-#   "database.server.name": "'"$avn_pg_svc_name"'",
-#   "table.whitelist": "public.source_table",
-#   "plugin.name": "wal2json",
-#   "database.sslmode": "require"
-#  }
-#}'
-
-# our test is using employees schema
-# curl -H "Content-type:application/json" -X POST https://avnadmin:$avn_kafka_connector_svc_password@$avn_kafka_connector_svc_fq_name:443/connectors -d '{
-# "name": "'"$avn_kafka_connector_svc_name"'",
-# "config": {
-#    "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
-#    "database.hostname": "'"$avn_pg_svc_fq_name"'",
-#    "database.port": "24947",
-#    "database.user": "avnadmin",
-#    "database.password": "'"$avn_pg_svc_password"'",
-#    "database.dbname": "defaultdb",
-#    "database.server.name": "'"$avn_pg_svc_name"'",
-#    "database.whitelist": "defaultdb",
-#    "table.whitelist": "employees.department, employees.employee, employees.title, employees.salary",
-#    "plugin.name": "wal2json",
-#    "database.sslmode": "require"
-#   }
-# }'
 
 # Create the connector which uses heartbeats (as our customer also uses this setting)
 # and consumes from a single test table
@@ -157,12 +111,6 @@ curl -H "Content-type:application/json" -X POST https://avnadmin:$avn_kafka_conn
    "heartbeat.action.query": "insert into heartbeat (id, updated_at) values (1, now()) on conflict (id) do update set updated_at = now();"
   }
 }'
-
-   # could be just not waiting long enough--seems like some table take 5-10 mins to show up in conduktor?
-   #"table.whitelist": "employees.department, employees.employee,", # worked
-  # both the below conifigs only sets up kafka topics for: employees.department and employees.department_employee
-    #"schema.whitelist": "employees", # only sets up employees.department and employees.department_employee
-    #"table.whitelist": "employees.department, employees.employee, employees.title, employees.salary",
 
 echo
 echo

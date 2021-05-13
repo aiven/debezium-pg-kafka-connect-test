@@ -4,15 +4,11 @@
 Deploys and configures a __test/validation__ environment for the Debezium (PostgreSQL) connector with Kafka service integration
 - I.e.: this project deploys and configures:
   - Kafka service
-    - with a test topic: `demo-topic`
   - Kafka Connector service
   - PostgreSQL service
-
 #### NOTE: For Test/Validation Use Only
 - Not suitable for environments higher than test/dev
 - This project's Terraform does not leverage remote encrypted locking statefiles, etc.
-
-
 ###### For more information please see:
 - [Aiven Help Docs: setting-up-debezium-with-aiven-for-postgresql](https://help.aiven.io/en/articles/1790791-setting-up-debezium-with-aiven-for-postgresql)
 
@@ -48,22 +44,6 @@ Deploys and configures a __test/validation__ environment for the Debezium (Postg
 ```console
 ./bin/deploy-terraform-infra.sh
 ```
-#### Kafka Tools
-- Producing to and consuming from our kafka `demo-topic`.
-- We procide an example below using the Conduktor application/tool.  It is not required, but recommended.  Feel free to use the tools and methods of your choice.
-##### Conduktor Configuration
-- We will use [conduktor](https://www.conduktor.io/download/) to create the requisite PKCS12 cert keystore and generate random data to the `demo-topic` kafka topic that our terraform created--(see the kafka_connect module).
-  - Follow the below steps after running the `deploy-terraform-infra.sh` script.
-  - [Download and install the conduktor kafka tool](https://www.conduktor.io/download/)
-  - Follow the [Conduktor Cluster Connection docs](https://docs.conduktor.io/kafka-cluster-connection/setting-up-a-connection-to-kafka); it's as simple as pointing the conduktor application to the:
-    - `ca.pem`
-    - `service.cert`
-    - `service.key`
-  files in the: `./kafka-config/project-certs` directory.
-  - Conduktor will create the PKCS12 keystore.
-- Producer: configure the topic for `demo-topic` set `Flow` `Automatic` and select data type, then `Start Producing`.
-- Select `Consumer` and topic: `demo-topic` and `Start`.
-- We should now see that we are both producing to and consuming from our kafka `demo-topic`.
 
 #### Monitoring our PostgreSQL Replication Slots
 - Note these commands are run in the `config-debezium-pg-kafka.sh` script that is called by the `deploy-terraform-infra.sh` script.
