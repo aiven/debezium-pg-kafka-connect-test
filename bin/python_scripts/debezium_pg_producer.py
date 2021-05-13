@@ -41,7 +41,7 @@ def kafka_consumer(run_event, broker, topic):
         consumer = KafkaConsumer(topic,
             consumer_timeout_ms=10000,
             security_protocol="SSL",
-            auto_offset_reset="latest",
+            auto_offset_reset="earliest",
             group_id="debezium-monitor",
             ssl_cafile="service-creds/ca.pem",
             ssl_certfile="service-creds/service.cert",
