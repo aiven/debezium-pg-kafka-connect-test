@@ -171,6 +171,15 @@ We couldn't find a sure way to reproduce this consistently, as it seems to occur
     ```
     
 ---
+
+#### Destroy all Terraform deployed resources 
+- Clean up / Destroy All terraform infrastructure deployed via our wrapper script in step 2
+```console
+./bin/DESTROY-terraform-infra.sh
+echo "ensure all resources terminated:"
+./bin/show-all-terraform-infra.sh
+```
+
 #### Possible Intermittent Known Issues
 - Saw this a couple of times where TF errors-out with creating `resource "aiven_kafka_topic" "demo-topic"`
 - Looked like timeout issue? `context deadline exceeded`
