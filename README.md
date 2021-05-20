@@ -12,6 +12,7 @@ Deploys and configures a __test/validation__ environment for the Debezium (Postg
 ###### For more information please see:
 - [Aiven Help Docs: setting-up-debezium-with-aiven-for-postgresql](https://help.aiven.io/en/articles/1790791-setting-up-debezium-with-aiven-for-postgresql)
 
+---
 #### REQUIREMENTS
 
 - [Terraform](https://learn.hashicorp.com/tutorials/terraform/install-cli) ver 14.x+ installed
@@ -39,49 +40,64 @@ Deploys and configures a __test/validation__ environment for the Debezium (Postg
 #### OPTIONAL
 - [tfenv](https://github.com/tfutils/tfenv)
 
-#### TL;DR: Deploy the infrastructure via wrapper script
-- You only need to execute one wrapper script which should deploy and configure all requisite resources.
+---
+#### TL;DR: Deploy the infrastructure with four (4) easy steps:
+
+__1.__ Update terraform/.auto.tfvars with your desired variable values
+  - Make sure to use a valid project_id 
+```console
+cat terraform/.auto.tfvars
+# Postgres
+avn_pg_svc_project_id = "test-demo"
+avn_pg_svc_cloud = "google-us-central1"
+avn_pg_svc_plan = "business-4"
+avn_pg_svc_name = "test-pg-debezium-gcp"
+avn_pg_svc_window_dow = "friday"
+avn_pg_svc_window_time = "12:00:00"
+avn_pg_svc_version = "12"
+
+# Kafka
+avn_kafka_svc_version = "2.7"
+avn_kafka_svc_project_id = "test-demo"
+avn_kafka_svc_cloud = "google-us-central1"
+avn_kafka_svc_plan = "business-4"
+avn_kafka_connect_svc_plan = "startup-4"
+avn_kafka_svc_name = "test-kafka-debezium-gcp"
+avn_kafka_connector_svc_name = "test-kafka-connector-debezium-gcp" 
+```
+
+__2.__ Execute one terraform wrapper script to deploy and configure all requisite resources.
 ```console
 ./bin/deploy-terraform-infra.sh
 ```
-
 #### Monitoring our PostgreSQL Replication Slots
-- Note these commands are run in the `config-debezium-pg-kafka.sh` script that is called by the `deploy-terraform-infra.sh` script.
 
-- Show the PG replication slots and their status--we should see 't' (true) under the 'active' column for each slot.
-  ```console
-  SELECT * from pg_replication_slots;
-  ```
+__3.__ start the replication slot monitor lag script in one terminal:
 
-- Show/monitor how much lag we have behind the slots:
-  ```console
-  SELECT redo_lsn, slot_name,restart_lsn,
-  round((redo_lsn-restart_lsn) / 1024 / 1024 / 1024, 2) AS GB_behind
-  FROM pg_control_checkpoint(), pg_replication_slots;
-  ```
-
-- There is also a python script that monitors the lag and warns if the slot becomes inactive:
   ```console
   python bin/python_scripts/replication_slot_monitor.py --verbose --sleep 10
   ```
 
-In the event of a database failover, the script will retry the connection:
-
+- Note that in the event of a database failover, the script will continue to retry the connection:
 ```
 ERROR replication_slot_monitor: Failed connecting to the PG server. Retrying after 5 seconds...
 ```
 
 #### Verify that the Debezium connector is capturing change
 
-There is a helper python script that generates data to a test Postgresql table and verify that the changes are captured by Debezium. Verification is done simply by consuming from the Kafka topic to which the connector writes the CDC events and checking if these records matches the ids of the records that were inserted into the source database table. For now the test database table is called `test` and it is hardcoded in `bin/config-debezium-pg-kafka.sh` and `bin/python_scripts/debezium_pg_producer.py`.
+- There is a helper python script that generates data to a test Postgresql table and verifies that the changes are captured by Debezium. Verification is done simply by consuming from the Kafka topic to which the connector writes the CDC events to and then checking if these records matches the ids of the records that were inserted into the source database table. 
+- The test database table is called `test` and it is hardcoded in `bin/config-debezium-pg-kafka.sh` and `bin/python_scripts/debezium_pg_producer.py`.
 
 Consuming from the Kafka topic and inserting data into the test table are done in separate Python threads.
+
+__4.__ Start the PG producer script in another terminal:
 
 ```console
 python bin/python_scripts/debezium_pg_producer.py --verbose --sleep 3
 ```
 
-The script accepts some arguments:
+Notes 
+- The script accepts the following _optional_ arguments:
 
 ```console
 --table TABLE           The table into which we write test data. Default is "test" table.
@@ -90,8 +106,7 @@ The script accepts some arguments:
 --verbose               Sets the log level to DEBUG. Default log level is WARN
 ```
 
-When a database failover event happens and the script cannot connect to the database to insert data, you will see  this log entry:
-
+- When a database failover event happens and the script cannot connect to the database to insert data, you will see  this log entry:
 ```
 ERROR debezium_pg_producer: Postgres data insert: Failed connecting to the PG server. Retrying after 5 seconds...
 ```
@@ -110,7 +125,7 @@ Kafka Consumer: All inserts were captured by debezium
 
 ---
 
-During testing I have noticed that the replication slot can be inactive for 15-20 minutes: this means that the connector isn't capturing any changes. What is interesting however is that the connector appears to run fine. It only fails at the time when the failover happened, with a failing error message like this:
+During testing we have noticed that the replication slot can be inactive for ~15-20 minutes: this means that the connector isn't capturing any changes. What is interesting however is that the connector appears to run fine.  It only has failed at the time when the PG database failover happened--with a failing error message like this:
 
 ```
 ERROR Producer failure
@@ -123,8 +138,9 @@ ERROR Could not execute heartbeat action
 
 After that the connector's status shows as running, and no more error messages are outputted. But the replication slot to which it consumes is still inactive :-?
 
-I couldn't find a sure way to reproduce this consistently, seems to happen now and again during a failover.
+We couldn't find a sure way to reproduce this consistently, as it seems to occur randomly during failover events.
 
+---
 #### Changing the Debezium connector log level
 
 - To get a more detailed log output, we can change the logging level of the running Debezium connector to TRACE level using this command:
@@ -139,6 +155,22 @@ I couldn't find a sure way to reproduce this consistently, seems to happen now a
   ./bin/set_debezium_connector_logging_level.sh
   ```
 
+---
+#### Manual SQL Queries to show the PG replication slots and their status
+- In addition to our python test/validation scripts, here are a few SQL examples:
+  - We should see 't' (true) under the 'active' column for each slot.
+    ```console
+    SELECT * from pg_replication_slots;
+    ```
+
+  - Show/monitor how much lag we have behind the slots:
+    ```console
+    SELECT redo_lsn, slot_name,restart_lsn,
+    round((redo_lsn-restart_lsn) / 1024 / 1024 / 1024, 2) AS GB_behind
+    FROM pg_control_checkpoint(), pg_replication_slots;
+    ```
+    
+---
 #### Possible Intermittent Known Issues
 - Saw this a couple of times where TF errors-out with creating `resource "aiven_kafka_topic" "demo-topic"`
 - Looked like timeout issue? `context deadline exceeded`
@@ -161,5 +193,5 @@ Apply complete! Resources: 1 added, 0 changed, 1 destroyed.
 
 ##### TODO
 - continue with pg data scripts and validate data flow through kafka via debezium.
-- document and automate the triggering of maintenance and or fail-over events with scaling up/down
+- possibly automate the triggering of maintenance and or fail-over events with scaling up/down
 - use env variables to specify region and project name for use in config-debezium-pg-kafka (right now hardcoded in .auto.tfvars)
