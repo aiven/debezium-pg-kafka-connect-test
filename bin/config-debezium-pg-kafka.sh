@@ -95,20 +95,24 @@ echo
 curl -H "Content-type:application/json" -X POST https://avnadmin:$avn_kafka_connector_svc_password@$avn_kafka_connector_svc_fq_name:443/connectors -d '{
 "name": "'"$avn_kafka_connector_svc_name"'",
 "config": {
-   "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
-   "database.hostname": "'"$avn_pg_svc_fq_name"'",
-   "database.port": "'"$avn_pg_svc_port"'",
-   "database.user": "avnadmin",
-   "database.password": "'"$avn_pg_svc_password"'",
-   "database.dbname": "defaultdb",
-   "database.server.name": "'"$avn_pg_svc_name"'",
-   "table.include.list": "public.test",
-   "plugin.name": "pgoutput",
-   "database.sslmode": "require",
-   "heartbeat.topics.prefix": "heartbeats",
-   "heartbeat.interval.ms": 10000,
-   "heartbeat.action.query": "insert into heartbeat (id, updated_at) values (1, now()) on conflict (id) do update set updated_at = now();",
-   "_aiven.restart.on.failure": "true"
+    "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+    "database.hostname": "'"$avn_pg_svc_fq_name"'",
+    "database.port": "'"$avn_pg_svc_port"'",
+    "database.user": "avnadmin",
+    "database.password": "'"$avn_pg_svc_password"'",
+    "database.dbname": "defaultdb",
+    "database.server.name": "'"$avn_pg_svc_name"'",
+    "table.include.list": "public.test",
+    "plugin.name": "pgoutput",
+    "database.sslmode": "require",
+    "heartbeat.topics.prefix": "heartbeats",
+    "heartbeat.interval.ms": 10000,
+    "heartbeat.action.query": "insert into heartbeat (id, updated_at) values (1, now()) on conflict (id) do update set updated_at = now();",
+    "topic.creation.default.cleanup.policy": "delete",
+    "topic.creation.default.retention.ms": 3600000,
+    "topic.creation.default.replication.factor": 3,
+    "topic.creation.default.partitions": 1,
+    "_aiven.restart.on.failure": "true"
   }
 }'
 
