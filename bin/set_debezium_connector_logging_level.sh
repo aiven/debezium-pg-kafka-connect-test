@@ -17,18 +17,10 @@ echo
 curl https://avnadmin:$avn_kafka_connector_svc_password@$avn_kafka_connector_svc_fq_name:443/admin/loggers
 echo
 
-if [ -z "$1" ]
-  then
-    echo "No logger supplied. Usage: ./bin/set_debezium_connector_logging_level.sh LOGGER LEVEL"
-fi
-
-if [ -z "$2" ]
-  then
-    echo "No log level supplied. Usage: ./bin/set_debezium_connector_logging_level.sh LOGGER LEVEL"
-fi
-
 if [ -z "$2" ] || [ -z "$1" ]
   then
+    echo
+    echo "To set the log level of a logger, use: ./bin/set_debezium_connector_logging_level.sh LOGGER LEVEL"
     exit 1
 fi
 
