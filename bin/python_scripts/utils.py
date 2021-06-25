@@ -1,5 +1,6 @@
 import os
 
+
 def get_pg_and_kafka_connection_info():
     """Get pg and kafka connection information from the terraform state
     """
@@ -27,12 +28,16 @@ def get_pg_and_kafka_connection_info():
 
     # Now change the directory
     os.chdir("terraform/kafka_connect/")
-    stream = os.popen(f"terraform state pull | jq -r '.resources[] | select(.name == \"kafka-service\") | .instances[] | select(.attributes.service_name == \"{kafka_service_name}\").attributes.service_uri'")
+    stream = os.popen(
+        f"terraform state pull | jq -r '.resources[] | select(.name == \"kafka-service\") | .instances[] | select(.attributes.service_name == \"{kafka_service_name}\").attributes.service_uri'"
+    )
     kafka_broker_uri = stream.read().strip()
     os.chdir(current_dir)
 
     os.chdir("terraform/postgres/")
-    stream = os.popen(f"terraform state pull | jq -r '.resources[] | select(.name == \"avn-us-pg\") | .instances[] | select(.attributes.service_name == \"{pg_service_name}\").attributes.service_uri'")
+    stream = os.popen(
+        f"terraform state pull | jq -r '.resources[] | select(.name == \"avn-us-pg\") | .instances[] | select(.attributes.service_name == \"{pg_service_name}\").attributes.service_uri'"
+    )
     pg_uri = stream.read().strip()
     os.chdir(current_dir)
 
