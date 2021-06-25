@@ -47,27 +47,3 @@ resource "aiven_service_integration" "i1" {
     }
   }
 }
-
-# create Kafka topic
-resource "aiven_kafka_topic" "demo-topic" {
-  project = var.avn_kafka_svc_project_id
-  service_name = var.avn_kafka_svc_name
-  topic_name = "demo-topic"
-  partitions = 3
-  replication = 2
-  termination_protection = false
-
-  config {
-      flush_ms = 10
-      unclean_leader_election_enable = true
-      cleanup_policy = "compact,delete"
-  }
-
-  timeouts {
-      create = "1m"
-      read = "5m"
-  }
-
-  depends_on = [ aiven_kafka.kafka-service ]
-
-}
