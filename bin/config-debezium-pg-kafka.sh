@@ -102,13 +102,13 @@ curl -H "Content-type:application/json" -X POST https://avnadmin:$avn_kafka_conn
    "database.password": "'"$avn_pg_svc_password"'",
    "database.dbname": "defaultdb",
    "database.server.name": "'"$avn_pg_svc_name"'",
-   "database.whitelist": "defaultdb",
-   "table.whitelist": "public.test",
+   "table.include.list": "public.test",
    "plugin.name": "pgoutput",
    "database.sslmode": "require",
    "heartbeat.topics.prefix": "heartbeats",
    "heartbeat.interval.ms": 10000,
-   "heartbeat.action.query": "insert into heartbeat (id, updated_at) values (1, now()) on conflict (id) do update set updated_at = now();"
+   "heartbeat.action.query": "insert into heartbeat (id, updated_at) values (1, now()) on conflict (id) do update set updated_at = now();",
+   "_aiven.restart.on.failure": "true"
   }
 }'
 
