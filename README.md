@@ -44,7 +44,7 @@ Deploys and configures a __test/validation__ environment for the Debezium (Postg
 #### TL;DR: Deploy the infrastructure with four (4) easy steps:
 
 __1.__ Update terraform/.auto.tfvars with your desired variable values
-  - Make sure to use a valid project_id 
+  - Make sure to use a valid project_id
 ```console
 cat terraform/.auto.tfvars
 # Postgres
@@ -63,7 +63,7 @@ avn_kafka_svc_cloud = "google-us-central1"
 avn_kafka_svc_plan = "business-4"
 avn_kafka_connect_svc_plan = "startup-4"
 avn_kafka_svc_name = "test-kafka-debezium-gcp"
-avn_kafka_connector_svc_name = "test-kafka-connector-debezium-gcp" 
+avn_kafka_connector_svc_name = "test-kafka-connector-debezium-gcp"
 ```
 
 __2.__ Execute one terraform wrapper script to deploy and configure all requisite resources.
@@ -85,7 +85,7 @@ ERROR replication_slot_monitor: Failed connecting to the PG server. Retrying aft
 
 #### Verify that the Debezium connector is capturing change
 
-- There is a helper python script that generates data to a test Postgresql table and verifies that the changes are captured by Debezium. Verification is done simply by consuming from the Kafka topic to which the connector writes the CDC events to and then checking if these records matches the ids of the records that were inserted into the source database table. 
+- There is a helper python script that generates data to a test Postgresql table and verifies that the changes are captured by Debezium. Verification is done simply by consuming from the Kafka topic to which the connector writes the CDC events to and then checking if these records matches the ids of the records that were inserted into the source database table.
 - The test database table is called `test` and it is hardcoded in `bin/config-debezium-pg-kafka.sh` and `bin/python_scripts/debezium_pg_producer.py`.
 
 Consuming from the Kafka topic and inserting data into the test table are done in separate Python threads.
@@ -96,7 +96,7 @@ __4.__ Start the PG producer script in another terminal:
 python bin/python_scripts/debezium_pg_producer.py --verbose --sleep 3
 ```
 
-Notes 
+Notes
 - The script accepts the following _optional_ arguments:
 
 ```console
@@ -169,10 +169,10 @@ We couldn't find a sure way to reproduce this consistently, as it seems to occur
     round((redo_lsn-restart_lsn) / 1024 / 1024 / 1024, 2) AS GB_behind
     FROM pg_control_checkpoint(), pg_replication_slots;
     ```
-    
+
 ---
 
-#### Destroy all Terraform deployed resources 
+#### Destroy all Terraform deployed resources
 - Clean up / Destroy All terraform infrastructure deployed via our wrapper script in step 2
 ```console
 ./bin/DESTROY-terraform-infra.sh
@@ -181,24 +181,19 @@ echo "ensure all resources terminated:"
 ```
 
 #### Possible Intermittent Known Issues
-- Saw this a couple of times where TF errors-out with creating `resource "aiven_kafka_topic" "demo-topic"`
-- Looked like timeout issue? `context deadline exceeded`
 
-```console
-aiven_kafka_topic.demo-topic: Still creating... [40s elapsed]
-aiven_kafka_topic.demo-topic: Still creating... [50s elapsed]
+*Kafka consumer in `debezium_pg_producer.py` not resuming after PG failover*
 
-Error: error waiting for Aiven Kafka topic to be ACTIVE: context deadline exceeded
-
-  on services.tf line 52, in resource "aiven_kafka_topic" "demo-topic":
-  52: resource "aiven_kafka_topic" "demo-topic" {
+Fails with:
 ```
-- Note that immediately re-executing the top-level `./bin/deploy-terraform-infra.sh` script it deployed/created the topic without issue.
-```console
-aiven_kafka_topic.demo-topic is tainted, so must be replaced
+Exception ignored in: <function ConsumerCoordinator.__del__ at 0x7f64090de3a0>
 ...
-Apply complete! Resources: 1 added, 0 changed, 1 destroyed.
+RuntimeError: cannot join current thread
 ```
+
+Solution for now is to re-run the `debezium_pg_producer.py` script.
+
+#####
 
 ##### TODO
 - continue with pg data scripts and validate data flow through kafka via debezium.
