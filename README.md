@@ -103,6 +103,8 @@ Notes
 --table TABLE           The table into which we write test data. Default is "test" table.
 --sleep SLEEP           Delay between inserts. Default 1 second. Used to control data flow
 --iterations ITERATIONS How many inserts before closing program. Defaults to 10000 inserts.
+--drop-table            Drop the test table before inserting new data into it. Default false.
+--check-debezium-slot   Only insert if the Debezium slot is active, to guarantee no data loss if PG fails over. Default false.
 --verbose               Sets the log level to DEBUG. Default log level is WARN
 ```
 
