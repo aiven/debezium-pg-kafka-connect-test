@@ -109,8 +109,8 @@ curl -H "Content-type:application/json" -X POST https://avnadmin:$avn_kafka_conn
     "heartbeat.interval.ms": 10000,
     "heartbeat.action.query": "insert into heartbeat (id, updated_at) values (1, now()) on conflict (id) do update set updated_at = now();",
     "topic.creation.default.cleanup.policy": "delete",
-    "topic.creation.default.retention.ms": 3600000,
-    "topic.creation.default.replication.factor": 3,
+    "topic.creation.default.retention.ms": 1800000,
+    "topic.creation.default.replication.factor": 2,
     "topic.creation.default.partitions": 1,
     "_aiven.restart.on.failure": "true"
   }
