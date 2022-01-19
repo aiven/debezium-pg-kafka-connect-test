@@ -1,10 +1,10 @@
-# Automated Debezium Kafka PostgreSQL Test ENV Deployment
+# Automated Debezium (PostgreSQL) Connector for Apache Kafka® Test ENV Deployment
 
 #### OVERVIEW
-Deploys and configures a __test/validation__ environment for the Debezium (PostgreSQL) connector with Kafka service integration
+Deploys and configures a __test/validation__ environment for the Debezium (PostgreSQL) connector with Apache Kafka service integration
 - I.e.: this project deploys and configures:
-  - Kafka service
-  - Kafka Connector service
+  - Apache Kafka service
+  - Apache Kafka Connector service
   - PostgreSQL service
 #### NOTE: For Test/Validation Use Only
 - Not suitable for environments higher than test/dev
@@ -198,6 +198,11 @@ Solution for now is to re-run the `debezium_pg_producer.py` script.
 #####
 
 ##### TODO
-- continue with pg data scripts and validate data flow through kafka via debezium.
+- continue with pg data scripts and validate data flow through Apache Kafka via debezium.
 - possibly automate the triggering of maintenance and or fail-over events with scaling up/down
 - use env variables to specify region and project name for use in config-debezium-pg-kafka (right now hardcoded in .auto.tfvars)
+
+
+## Trademarks
+
+Apache Kafka, Apache Kafka Connect are either registered trademarks or trademarks of the Apache Software Foundation in the United States and/or other countries. Debezium, PostgreSQL and Terraform are trademarks and property of their respective owners. All product and service names used in this website are for identification purposes only and do not imply endorsement.
