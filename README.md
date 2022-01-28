@@ -1,11 +1,11 @@
-# Automated Debezium (PostgreSQL) Connector for Apache Kafka® Test ENV Deployment
+# Automated Debezium (PostgreSQL®) Connector for Apache Kafka® Test ENV Deployment
 
 #### OVERVIEW
-Deploys and configures a __test/validation__ environment for the Debezium (PostgreSQL) connector with Apache Kafka service integration
+Deploys and configures a __test/validation__ environment for the Debezium (PostgreSQL®) connector with Apache Kafka service integration
 - I.e.: this project deploys and configures:
   - Apache Kafka service
   - Apache Kafka Connector service
-  - PostgreSQL service
+  - PostgreSQL® service
 #### NOTE: For Test/Validation Use Only
 - Not suitable for environments higher than test/dev
 - This project's Terraform does not leverage remote encrypted locking statefiles, etc.
