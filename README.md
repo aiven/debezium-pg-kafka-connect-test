@@ -10,13 +10,13 @@ Deploys and configures a __test/validation__ environment for the Debezium (Postg
 - Not suitable for environments higher than test/dev
 - This project's Terraform does not leverage remote encrypted locking statefiles, etc.
 ###### For more information please see:
-- [Aiven Help Docs: setting-up-debezium-with-aiven-for-postgresql](https://help.aiven.io/en/articles/1790791-setting-up-debezium-with-aiven-for-postgresql)
+- [Aiven Help Docs: setting-up-debezium-with-aiven-for-postgresql](https://developer.aiven.io/docs/products/kafka/kafka-connect/howto/debezium-source-connector-pg.html)
 
 ---
 #### REQUIREMENTS
 
 - [Terraform](https://learn.hashicorp.com/tutorials/terraform/install-cli) ver 14.x+ installed
-- `avien-client` (latest version) installed and configured for use with an [Aiven Authentication token](https://help.aiven.io/en/articles/2059201-authentication-tokens)
+- `aiven-client` (latest version) installed and configured for use with an [Aiven Authentication token](https://help.aiven.io/en/articles/2059201-authentication-tokens)
 
   - So, your Aiven Cli config files should look like:
     ```console
