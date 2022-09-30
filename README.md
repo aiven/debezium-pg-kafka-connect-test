@@ -54,10 +54,10 @@ avn_pg_svc_plan = "business-4"
 avn_pg_svc_name = "test-pg-debezium-gcp"
 avn_pg_svc_window_dow = "friday"
 avn_pg_svc_window_time = "12:00:00"
-avn_pg_svc_version = "12"
+avn_pg_svc_version = "14"
 
 # Kafka
-avn_kafka_svc_version = "2.7"
+avn_kafka_svc_version = "3.2"
 avn_kafka_svc_project_id = "test-demo"
 avn_kafka_svc_cloud = "google-us-central1"
 avn_kafka_svc_plan = "business-4"
